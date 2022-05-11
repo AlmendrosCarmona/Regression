@@ -19,9 +19,9 @@ if uploaded_file is not None:
                                                          'I4+', 'I4-', 'I5+',
                                                          'I5-', 'I6+',
                                                          'I6-', 'I7+', 'I7-',
-                                                         'I8+', 'I8-'))
+                                                         'I8+', 'I8-', 'I'))
     temperature = st.selectbox('Selecciona Temperatura: ', ('TempVAT',
-                                                            'TempCabine'))
+                                                            'TempCabine', 'T'))
 
     df = df1[[temperature, intensity]]
     df = df.rename(columns={temperature: "T", intensity: "I"})
