@@ -3,6 +3,7 @@ import pandas as pd
 import plotly.express as px
 import matplotlib.pyplot as plt
 import numpy as np
+import re
 
 st.set_page_config(layout="wide")
 st.title("Estudi regressió automàtica")
@@ -10,13 +11,30 @@ st.title("Estudi regressió automàtica")
 # Read data
 uploaded_file = st.file_uploader("Choose a file")
 if uploaded_file is not None:
-    df = pd.read_csv(uploaded_file, delimiter=';')
+    df1 = pd.read_csv(uploaded_file, delimiter=';')
+    # Select witch intensity
+    intensity = st.selectbox('Selecciona Intensidad: ', ('Ip', 'In',
+                                                         'I1+', 'I1-', 'I2+',
+                                                         'I2-', 'I3+', 'I3-',
+                                                         'I4+', 'I4-', 'I5+',
+                                                         'I5-', 'I6+',
+                                                         'I6-', 'I7+', 'I7-',
+                                                         'I8+', 'I8-'))
+    temperature = st.selectbox('Selecciona Temperatura: ', ('TempVAT',
+                                                            'TempCabine'))
+
+    df = df1[[temperature, intensity]]
+    df = df.rename(columns={temperature: "T", intensity: "I"})
+    #df["T"] = df["T"].astype(float)
+    #df["T"] = pd.to_numeric(df["T"])
+    df["T"] = pd.to_numeric(df["T"].apply(lambda x: re.sub(',', '.', str(x))))
+    st.text(df.dtypes)
 
     # Create variables user input
     n = st.slider("Número de punts a importar: ", 1, len(df.index)+1)
     Temp = st.number_input(label="Temperatura de canvi", step=1., format="%.2f")
 
-    if Temp and n:
+    if Temp and n and intensity and temperature:
         df_reg = df.truncate(after=n-1)
         var_x = df_reg["T"].var()
         cov = df_reg.cov().iat[0, 1]  # Selecionamos la covarianza x, y
@@ -105,7 +123,7 @@ if uploaded_file is not None:
         fig3 = px.line(df_reg, y='I_corr', color_discrete_sequence=['red'])
         fig3.update_traces(selector=0, name='I_corr', showlegend=True)
         col2.plotly_chart(fig3)
-        #df_reg['I_corr'] = np.where(df_reg['T'] <= Temp, df_reg["I"].iat[0], df_reg["I"].iat[0]+dist)
+        # df_reg['I_corr'] = np.where(df_reg['T'] <= Temp, df_reg["I"].iat[0], df_reg["I"].iat[0]+dist)
         st.subheader('Dades')
         st.dataframe(df_reg)
         # st.dataframe(df_reg2)
